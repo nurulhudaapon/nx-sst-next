@@ -1,0 +1,62 @@
+{
+	"name": "admin",
+	"$schema": "../../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "apps/admin",
+	"projectType": "application",
+	"targets": {
+		"build": {
+			"executor": "@nx/next:build",
+			"outputs": ["{options.outputPath}"],
+			"defaultConfiguration": "production",
+			"options": {
+				"outputPath": "dist/apps/admin"
+			},
+			"configurations": {
+				"development": {
+					"outputPath": "apps/admin"
+				},
+				"staging": {},
+				"production": {}
+			}
+		},
+		"serve": {
+			"executor": "@nx/next:server",
+			"defaultConfiguration": "development",
+			"options": {
+				"buildTarget": "admin:build",
+				"dev": true,
+				"port": 2000
+			},
+			"configurations": {
+				"development": {
+					"buildTarget": "admin:build:development",
+					"dev": true
+				},
+				"staging": {
+					"buildTarget": "admin:build:staging",
+					"dev": true
+				},
+				"production": {
+					"buildTarget": "admin:build:production",
+					"dev": true
+				}
+			}
+		},
+		"deploy": {
+			"executor": "nx:run-commands",
+			"defaultConfiguration": "staging",
+			"dependsOn": ["build"],
+			"configurations": {
+				"production": {
+					"commands": ["ENVIRONMENT_NAME=production sst deploy --stage=production"],
+					"parallel": false
+				},
+				"staging": {
+					"commands": ["ENVIRONMENT_NAME=staging sst deploy --stage=staging"],
+					"parallel": false
+				}
+			}
+		}
+	},
+	"tags": ["admin", "web"]
+}

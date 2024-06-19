@@ -1,0 +1,113 @@
+name: Deployment - Deploy
+
+on:
+    workflow_dispatch:
+        inputs:
+            env:
+                description: Environment
+                required: true
+                type: choice
+                options:
+                    - 'staging'
+                    - 'production'
+
+                default: staging
+
+            apps:
+                description: Projects to deploy
+                type: choice
+                default: affected
+                options:
+                    - 'all'
+                    - 'affected'
+
+                    - 'adming'
+
+    repository_dispatch:
+        types:
+            - deploy
+
+    workflow_call:
+        inputs:
+            env:
+                description: Environment to promote to
+                required: true
+                type: string
+                default: staging
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        env:
+            ENV: ${{ github.event.client_payload.env || github.event.inputs.env || 'staging' }}
+            APPS: ${{ github.event.client_payload.apps || github.event.inputs.apps || 'affected' }}
+        steps:
+            - name: Check out source repository
+              uses: actions/checkout@v3
+              with:
+                  fetch-depth: 2
+
+            - name: Cache dependencies
+              id: cache
+              uses: actions/cache@v3
+              with:
+                  path: ./node_modules
+                  key: node-modules-${{ hashFiles('bun.lockb') }}
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 20.11.1
+
+            - uses: oven-sh/setup-bun@v1
+              with:
+                  bun-version: 1.1.1
+
+            - run: bun i
+              name: Install dependencies
+              if: ${{ steps.cache.outputs.cache-hit != 'true' }}
+
+            - name: Configure staging AWS credentials (Or just use GitHub Environments)
+              if: ${{ env.ENV == 'staging' }}
+              uses: aws-actions/configure-aws-credentials@v1
+              with:
+                  aws-access-key-id: ${{ secrets.STAGING_AWS_ACCESS_KEY_ID }}
+                  aws-secret-access-key: ${{ secrets.STAGING_AWS_SECRET_ACCESS_KEY }}
+                  aws-region: ${{ secrets.STAGING_AWS_REGION }}
+
+            - name: Configure production AWS credentials
+              if: ${{ env.ENV == 'production' }}
+              uses: aws-actions/configure-aws-credentials@v1
+              with:
+                  aws-access-key-id: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
+                  aws-secret-access-key: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
+                  aws-region: ${{ secrets.PROD_AWS_REGION }}
+
+            - name: Setup SST@icon
+              run: |
+                  curl -fsSL https://ion.sst.dev/install | bash
+
+            - name: Deploy affected apps on ${{ env.ENV }}
+              id: deploy-affected
+              if: ${{ env.APPS == 'affected' }}
+              run: bun x nx affected --target=deploy --base=origin/main~1 --head=origin/main --configuration $ENV
+
+            - name: Deploy all apps on ${{ env.ENV }}
+              id: deploy
+              if: ${{ env.APPS == 'all' }}
+              run: bun x nx run-many --target=deploy --all=true --parallel=6 --configuration $ENV
+
+            - name: Deploy ${{ env.APPS }} on ${{ env.ENV }}
+              id: deploy-specific
+              if: ${{ !(env.APPS == 'all' || env.APPS == 'affected') }}
+              run: bun x nx run-many --target=deploy --projects ${{ env.APPS }} --configuration $ENV
+
+            - name: Create release and tag
+              if: ${{ env.ENV == 'production' }}
+              uses: actions/create-release@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  tag_name: ${{ env.APPS }}-${{ github.run_number }}
+                  release_name: ${{ env.APPS }}-${{ github.run_number }}
+                  draft: false
+                  prerelease: false

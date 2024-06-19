@@ -1,0 +1,25 @@
+{
+  "name": "@nurulhudaapon/nx-sst-next",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {},
+  "private": true,
+  "dependencies": {
+    "@nx/next": "^19.3.0",
+    "next": "14.2.4",
+    "open-next": "^3.0.5",
+    "react": "^18",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@nx/js": "19.3.0",
+    "@nx/workspace": "19.3.0",
+    "nx": "19.3.0",
+    "typescript": "^5",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.4"
+  }
+}
