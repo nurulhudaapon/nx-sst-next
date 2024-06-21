@@ -25,6 +25,7 @@
 			"options": {
 				"buildTarget": "admin:build",
 				"dev": true,
+				"turbo": true,
 				"port": 2000
 			},
 			"configurations": {
@@ -38,21 +39,20 @@
 				},
 				"production": {
 					"buildTarget": "admin:build:production",
-					"dev": true
+					"dev": false
 				}
 			}
 		},
 		"deploy": {
 			"executor": "nx:run-commands",
 			"defaultConfiguration": "staging",
-			"dependsOn": ["build"],
 			"configurations": {
 				"production": {
-					"commands": ["ENVIRONMENT_NAME=production sst deploy --stage=production"],
+					"commands": ["sst deploy --stage=production"],
 					"parallel": false
 				},
 				"staging": {
-					"commands": ["ENVIRONMENT_NAME=staging sst deploy --stage=staging"],
+					"commands": ["sst deploy --stage=staging"],
 					"parallel": false
 				}
 			}

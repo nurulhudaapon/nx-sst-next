@@ -1,5 +1,8 @@
+# NX • SST • Next.js
 
-## Setup Route 53 hosted Zone
+This is a template for deploying a Next.js to AWS via SST within an NX workspace.
+
+## Setup Route 53 Hosted Zone
 Follow the instructions in the follwoing link to setup a hosted zone in Route 53
 https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/dns-configuring.html
 
@@ -18,6 +21,6 @@ ENVIRONMENT_NAME=production sst deploy --stage=production
 
 Or simply using NX
 ```sh
-bunx nx run admin:deploy:staging
-bunx nx run admin:deploy:production
+npx nx run admin:deploy:staging
+npx nx run admin:deploy:production
 ```

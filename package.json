@@ -2,7 +2,12 @@
   "name": "@nurulhudaapon/nx-sst-next",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "build": "nx run-many --target=build --all",
+    "lint": "nx run-many --target=lint --all",
+    "test": "nx run-many --target=test --all",
+    "deploy": "nx run-many --target=deploy --all"
+  },
   "private": true,
   "dependencies": {
     "@nx/next": "^19.3.0",

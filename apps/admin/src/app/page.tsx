@@ -1,24 +1,26 @@
-import Image from "next/image";
-import styles from "./page.module.css";
-
 export default function Home() {
-  const SECRET = process.env.NEXT_PUBLIC_EXAMPLE_NAME;
-
   return (
-    <main className={styles.main}>
-      <h1>
-        NX SST Next.js App
-      </h1>
+    <main style={mainStyle}>
+      <h1> NX SST Next.js App - Admin </h1>
 
-      <div className={styles.center}>
-          <h1>
-            NEXT_PUBLIC_EXAMPLE_NAME: {process.env.NEXT_PUBLIC_EXAMPLE_NAME}
-            <br />
-            ENVIRONMENT_NAME: {process.env.ENVIRONMENT_NAME}
-          </h1>
-      </div>
-
-
+      <code >
+        <h4>NEXT_PUBLIC_EXAMPLE_NAME</h4>
+        <h5>{process.env.NEXT_PUBLIC_EXAMPLE_NAME}</h5>
+        <br />
+        <h4>ENVIRONMENT_NAME</h4>
+        <h5>{process.env.ENVIRONMENT_NAME}</h5>
+      </code>
     </main>
   );
 }
+
+const mainStyle = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  height: '100vh',
+  padding: '0 20px',
+  color: '#333',
+  textAlign: 'center',
+} as const;
